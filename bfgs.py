@@ -61,6 +61,12 @@ class BFGS:
         while np.linalg.norm(self.f.gradient(x_k), 2) > self.eps or k > self.max_iter:
             # counter + 1
             k += 1
+
+            if self.ax:
+                self.ax.scatter(x_k[0], x_k[1], self.f(*x_k), c="black")
+                self.ax.set_title(f"Step: {k}\nx: {round(x_k[0], 3)} y: {round(x_k[1], 3)}\nFunction value:{round(self.f(*x_k), 3)}")
+                plt.pause(self.plot_pause)
+
             grad = self.f.gradient(x_k)
 
             # compute next iteration point
@@ -80,10 +86,6 @@ class BFGS:
             # update x_k
             x_k = x_k_
 
-            if self.ax:
-                self.ax.scatter(x_k[0], x_k[1], self.f(*x_k), c="black")
-                self.ax.set_title(f"Step: {k}\nx: {round(x_k[0], 3)} y: {round(x_k[1], 3)}\nFunction value:{round(self.f(*x_k), 3)}")
-                plt.pause(self.plot_pause)
             # update hessian
             h_k = h_k_
 
@@ -112,7 +114,7 @@ class BFGS:
         hessian_ = np.dot(np.dot(x, hessian), y) + z
         return hessian_
 
-    def trust_region(self, x, h, delta=1e-1, delta_max: float = 1, v_=1e-1):
+    def trust_region(self, x, h, delta=1e-1, delta_max: float = 10, v_=1e-1):
         delta_k = delta
         while True:
             s_k = self._search_direction(x, h, delta=delta_k)

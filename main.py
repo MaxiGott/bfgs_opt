@@ -1,8 +1,4 @@
 import time
-
-import numpy as np
-from matplotlib import pyplot as plt, cm
-
 from bfgs import BFGS
 
 
@@ -30,6 +26,6 @@ if __name__ == '__main__':
     some_func = func_2
 
     start = time.time()
-    x = BFGS(f=some_func, x0=x0, eps=1e-4, plotting=False).minimize(trust_region=True)
+    x = BFGS(f=some_func, x0=x0, eps=1e-4, plotting=True).minimize(trust_region=True)
     print("Duration: " + str(time.time() - start))
     print(f"Minimum: {x}, Value at function: {some_func(*x)}")
