@@ -26,7 +26,7 @@ def rosenbrock_nd(*args, a=1, b=1):
 
 
 if __name__ == '__main__':
-    x0 = [5]*50
+    x0 = [5, 4]
     some_func = rosenbrock_nd
 
 
@@ -45,6 +45,6 @@ if __name__ == '__main__':
     # plt.show()
     #
     start = time.time()
-    x = BFGS(f=some_func, x0=x0, eps=1e-4).minimize()
+    x = BFGS(f=some_func, x0=x0, eps=1e-4).minimize(trust_region=True)
     print("Duration: " + str(time.time() - start))
     print(f"Minimum: {x}, Value at function: {some_func(*x)}")
