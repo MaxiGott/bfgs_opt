@@ -27,24 +27,9 @@ def rosenbrock_nd(*args, a=1, b=1):
 
 if __name__ == '__main__':
     x0 = [5, 4]
-    some_func = rosenbrock_nd
+    some_func = func_2
 
-
-    # plot function
-    # x = np.arange(-5, 5, 0.1)
-    # y = np.arange(-5, 5, 0.1)
-    # X, Y = np.meshgrid(x, y)
-    #
-    # Z = some_func(*[X, Y])
-    # fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-    #
-    # # Plot the surface.
-    # surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm,
-    #                        linewidth=0, antialiased=False)
-    #
-    # plt.show()
-    #
     start = time.time()
-    x = BFGS(f=some_func, x0=x0, eps=1e-4).minimize(trust_region=True)
+    x = BFGS(f=some_func, x0=x0, eps=1e-4, plotting=False).minimize(trust_region=True)
     print("Duration: " + str(time.time() - start))
     print(f"Minimum: {x}, Value at function: {some_func(*x)}")
