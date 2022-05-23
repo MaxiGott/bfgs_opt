@@ -1,22 +1,49 @@
 import typing
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import cm
+
 from c2_functions import C2Function
 
 
 class BFGS:
     f: C2Function
 
-    def __init__(self, f, x0: typing.List[int], alpha: float = 1, max_iter: int = 1e5, eps: float = 1e-5):
+    def __init__(self, f, x0: typing.List[int], alpha: float = 1, max_iter: int = 1e5, eps: float = 1e-5,
+                 plotting: bool = False, plot_pause: float = 1e-3):
+        """
+
+        :param f:
+        :param x0:
+        :param alpha:
+        :param max_iter:
+        :param eps:
+        :param plotting: This slows down the algorithm essentially. Plotting can only be used for 2-dim functions
+        :param plot_pause: pause between the steps
+        """
         self.eps = eps
         self.max_iter = max_iter
         # select a start val
         self.x0 = x0
         self.alpha = alpha
+        self.ax = None
+        self.plot_pause = plot_pause
 
         if not isinstance(f, C2Function):
             self.f = C2Function(f)
         else:
             self.f = f
+
+        if plotting:
+            _fig = plt.figure()
+            self.ax = _fig.add_subplot(projection='3d')
+            x = np.arange(-5, 5, 0.1)
+            y = np.arange(-5, 5, 0.1)
+            X, Y = np.meshgrid(x, y)
+
+            Z = self.f(*[X, Y])
+            surf = self.ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False, alpha=0.3)
+            plt.pause(1e-3)
 
     def minimize(self, line_search=False, trust_region=False):
         # calculate hessian matrix as start
@@ -28,12 +55,18 @@ class BFGS:
         # while gradient big enough and not more than max_iter iterations
 
         search_method = None
-        if (line_search and trust_region) or not (line_search and trust_region):
+        if (line_search and trust_region) or not (line_search or trust_region):
             print("Please select exactly one method, either line_search or trust_region")
 
         while np.linalg.norm(self.f.gradient(x_k), 2) > self.eps or k > self.max_iter:
             # counter + 1
             k += 1
+
+            if self.ax:
+                self.ax.scatter(x_k[0], x_k[1], self.f(*x_k), c="black")
+                self.ax.set_title(f"Step: {k}\nx: {round(x_k[0], 3)} y: {round(x_k[1], 3)}\nFunction value:{round(self.f(*x_k), 3)}")
+                plt.pause(self.plot_pause)
+
             grad = self.f.gradient(x_k)
 
             # compute next iteration point
@@ -55,6 +88,9 @@ class BFGS:
 
             # update hessian
             h_k = h_k_
+
+        if self.ax:
+            plt.show()
 
         print(f"Finished after: {k} steps. Minimum value: {self.f(*x_k)} at point {x_k}")
         return x_k
@@ -78,7 +114,7 @@ class BFGS:
         hessian_ = np.dot(np.dot(x, hessian), y) + z
         return hessian_
 
-    def trust_region(self, x, h, delta=1e-1, delta_max: float = 1, v_=1e-1):
+    def trust_region(self, x, h, delta=1e-1, delta_max: float = 10, v_=1e-1):
         delta_k = delta
         while True:
             s_k = self._search_direction(x, h, delta=delta_k)
