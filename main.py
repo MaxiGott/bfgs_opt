@@ -1,6 +1,6 @@
 import time
 from bfgs import BFGS
-
+import scipy.optimize
 
 def func(x):
     return x**2
@@ -23,9 +23,16 @@ def rosenbrock_nd(*args, a=1, b=1):
 
 if __name__ == '__main__':
     x0 = [5, 4]
-    some_func = func_2
+    some_func = rosenbrock_nd
 
+    # scipy
     start = time.time()
-    x = BFGS(f=some_func, x0=x0, eps=1e-4, plotting=True).minimize(trust_region=True)
+    erg = scipy.optimize.minimize(rosenbrock_nd, x0, method="BFGS")
+    print(f"Duration scipy: {time.time()-start}")
+
+    # own implementation
+    start = time.time()
+    x = BFGS(f=some_func, x0=x0, eps=1e-4, plotting=False).minimize(trust_region=True)
     print("Duration: " + str(time.time() - start))
-    print(f"Minimum: {x}, Value at function: {some_func(*x)}")
+
+    print(f"Minimum: {x}, Value at function: {some_func(*x)}")#

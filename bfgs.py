@@ -119,10 +119,10 @@ class BFGS:
         while True:
             s_k = self._search_direction(x, h, delta=delta_k)
             v_k = (self.f(*x) - self.f(*(x + s_k))) / (self._mc(x, s=np.zeros(len(x)), h=h) - self._mc(x, s=s_k, h=h))
-
+            norm = np.linalg.norm(s_k)
             if v_k < 1 / 4:
-                delta_k = 1 / 2 * np.linalg.norm(s_k)
-            elif v_k > 3 / 4 and np.linalg.norm(s_k) == delta_k:
+                delta_k = 1 / 2 * norm
+            elif v_k > 3 / 4 and norm == delta_k:
                 delta_k = min(2 * delta_k, delta_max)
             else:
                 break
